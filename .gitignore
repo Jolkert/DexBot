@@ -1,0 +1,4 @@
+bin/
+DexBot/obj
+.vs/
+DexBot/Modules/TestModule.cs
