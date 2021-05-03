@@ -194,7 +194,7 @@ namespace DexBot
 		public static async Task<IUserMessage> SendSearchMessageAsync(IMessageChannel channel)
 		{
 			EmbedBuilder embed = new EmbedBuilder()
-				.WithAuthor(new EmbedAuthorBuilder().WithName("Serching...").WithIconUrl(QuestionMarkUnownUrl))
+				.WithAuthor(new EmbedAuthorBuilder().WithName("Searching...").WithIconUrl(QuestionMarkUnownUrl))
 				.WithTitle("Depending on your search, it might take a while")
 				.WithColor(DefaultColor);
 			IUserMessage message = await channel.SendMessageAsync("", false, embed.Build());
