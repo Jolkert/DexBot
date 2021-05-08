@@ -7,12 +7,22 @@ using System.Threading.Tasks;
 
 namespace DexBot.Modules
 {
-	[Group("ability"), Alias("abil", "a"), Name("Ability")]
-	public class AbilityModule : ModuleBase<SocketCommandContext>, IParsableModule
+	[Group("ability"), Alias("abil", "a"), Name(Source)]
+	public class AbilityModule : ModuleBase<SocketCommandContext>, IModuleWithHelp, IParsableModule
 	{
 		private const string Source = "Ability";
+		public string ModuleName => Source;
 
-		[Command, Name("Ability")]
+		[Command("help"), Alias("?"), Name(Source + " Help"), Priority(1)]
+		public async Task HelpCommand()
+		{
+			string description = "Gets information about the specified ability or about the specified pokémon's abilitie(s)";
+			string usage = "<ability|pokémon>";
+
+			await Context.Channel.SendMessageAsync("", false, Util.CreateHelpEmbed(description, usage, this).Build());
+		}
+
+		[Command, Name(Source)]
 		public async Task AbilityCommand([Remainder] string input)
 		{
 			IUserMessage message = await Util.SendSearchMessageAsync(Context.Channel);

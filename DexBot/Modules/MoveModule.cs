@@ -7,12 +7,22 @@ using System.Threading.Tasks;
 
 namespace DexBot.Modules
 {
-	[Group("move"), Alias("mv", "m"), Name("Move")]
-	public class MoveModule : ModuleBase<SocketCommandContext>, IParsableModule
+	[Group("move"), Alias("mv", "m"), Name(Source)]
+	public class MoveModule : ModuleBase<SocketCommandContext>, IModuleWithHelp, IParsableModule
 	{
 		private const string Source = "Move";
+		public string ModuleName => Source;
 
-		[Command, Name("Move")]
+		[Command("help"), Alias("?"), Name(Source + " Help"), Priority(1)]
+		public async Task HelpCommand()
+		{
+			string description = "Gets data about the specified move";
+			string usage = "<move>";
+
+			await Context.Channel.SendMessageAsync("", false, Util.CreateHelpEmbed(description, usage, this).Build());
+		}
+
+		[Command]
 		public async Task MoveCommand([Remainder] string input)
 		{
 			IUserMessage message = await Util.SendSearchMessageAsync(Context.Channel);

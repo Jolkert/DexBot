@@ -13,10 +13,11 @@ using System.Threading.Tasks;
 
 namespace DexBot.Modules
 {
-	[Group("type"), Alias("t"), Name("Type")]
-	public class TypeModule : ModuleBase<SocketCommandContext>, IParsableModule
+	[Group("type"), Alias("t"), Name(Source)]
+	public class TypeModule : ModuleBase<SocketCommandContext>, IModuleWithHelp, IParsableModule
 	{
 		private const string Source = "Type";
+		public string ModuleName => Source;
 
 		private const int ImageSize = 512;
 		private const ulong ImageDumpServerId = 390334803972587530;
@@ -43,6 +44,15 @@ namespace DexBot.Modules
 			{ "dark", 836473652391575589 },
 			{ "fairy", 836473655005020170 }
 		};
+
+		[Command("help"), Alias("?"), Name(Source + " Help"), Priority(1)]
+		public async Task HelpCommand()
+		{
+			string description = "Gets data about the specified type or the type matchups of the specified pokémon";
+			string usage = "<type|pokémon>";
+
+			await Context.Channel.SendMessageAsync("", false, Util.CreateHelpEmbed(description, usage, this).Build());
+		}
 
 		[Command, Name("Type")]
 		public async Task TypeCommand([Remainder] string input)
@@ -179,10 +189,11 @@ namespace DexBot.Modules
 	}
 
 	[Group("weakness"), Alias("weak", "wk", "w"), Name("Weakness")]
-	public class WeaknessModule : ModuleBase<SocketCommandContext>
+	public class WeaknessModule : ModuleBase<SocketCommandContext>, IModuleWithHelp
 	{
 		private const string Source = "Weakness";
-
+		public string ModuleName => Source;
+		
 		private static readonly string[] _typeNames = new string[]
 			{
 				"normal",
@@ -204,6 +215,15 @@ namespace DexBot.Modules
 				"dark",
 				"fairy"
 			};
+
+		[Command("help"), Alias("?"), Name(Source + " Help"), Priority(1)]
+		public async Task HelpCommand()
+		{
+			string description = "Gets the type matchups of the specified pokémon or of a pokémon that is all of the types specified.";
+			string usage = "<pokémon|(type1 type2 ...)>";
+
+			await Context.Channel.SendMessageAsync("", false, Util.CreateHelpEmbed(description, usage, this).Build());
+		}
 
 		[Command, Name("Weakness")]
 		public async Task WeakCommand([Remainder] string input)
@@ -366,7 +386,7 @@ namespace DexBot.Modules
 			return string.Join('/', immunities);
 		}
 
-
+		
 
 		public struct MultiTypeRelations
 		{

@@ -8,7 +8,7 @@ namespace DexBot
 		private const string ResourcesFile = "Resources";
 		private const string ConfigFile = "config.json";
 
-		public static BotConfig bot;
+		public static BotConfig Bot;
 
 		static Config()
 		{
@@ -16,29 +16,35 @@ namespace DexBot
 				Directory.CreateDirectory(ResourcesFile);
 			if (!File.Exists(ResourcesFile + "/" + ConfigFile))
 			{
-				bot = new BotConfig();
-				string json = JsonConvert.SerializeObject(bot, Formatting.Indented);
+				Bot = new BotConfig("BOT_TOKEN_GOES_HERE", "d!");
+				string json = JsonConvert.SerializeObject(Bot, Formatting.Indented);
 				File.WriteAllText(ResourcesFile + "/" + ConfigFile, json);
 			}
 			else
 			{
 				string json = File.ReadAllText(ResourcesFile + "/" + ConfigFile);
-				bot = JsonConvert.DeserializeObject<BotConfig>(json);
+				Bot = JsonConvert.DeserializeObject<BotConfig>(json);
 			}
 		}
 
 		public static void ChangePrefix(string newPrefix)
 		{
-			bot.cmdPrefix = newPrefix;
+			Bot.CommandPrefix = newPrefix;
 
-			string json = JsonConvert.SerializeObject(bot, Formatting.Indented);
+			string json = JsonConvert.SerializeObject(Bot, Formatting.Indented);
 			File.WriteAllText(ResourcesFile + "/" + ConfigFile, json);
 		}
 	}
 
 	public struct BotConfig
 	{
-		public string token;
-		public string cmdPrefix;
+		public string Token;
+		public string CommandPrefix;
+
+		public BotConfig(string token, string prefix)
+		{
+			this.Token = token;
+			this.CommandPrefix = prefix;
+		}
 	}
 }

@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace DexBot.Modules
 {
-	[Group("data"), Alias("dt", "d"), Name("Data")]
-	public class DataModule : ModuleBase<SocketCommandContext>
+	[Group("data"), Alias("dt", "d"), Name(Source)]
+	public class DataModule : ModuleBase<SocketCommandContext>, IModuleWithHelp
 	{
 		private static readonly IParsableModule[] _modules = new IParsableModule[]
 		{
@@ -19,8 +19,19 @@ namespace DexBot.Modules
 		};
 
 		private const string Source = "Data";
+		public string ModuleName => Source;
+		
+		[Command("help"), Alias("?"), Name(Source + " Help"), Priority(1)]
+		public async Task HelpCommand()
+		{
+			string description = "Gets data about the specified object. A master-command for all data-related commands";
+			string usage = "<object>";
 
-		[Command, Name("Data")]
+			await Context.Channel.SendMessageAsync("", false, Util.CreateHelpEmbed(description, usage, this).Build());
+		}
+
+
+		[Command, Name(Source)]
 		public async Task DataCommand([Remainder] string input)
 		{// This feels kinda weird but it works. Can't come up with a better way off the top of my head so I'm gonna leave it -Jolkert 2021-07-27
 		 // Parallelization working but like kinda weird i guess? maybe look at it later -2021-04-29
@@ -67,5 +78,7 @@ namespace DexBot.Modules
 
 			await Util.ReplaceEmbedAsync(message, embed);
 		}
+
+
 	}
 }

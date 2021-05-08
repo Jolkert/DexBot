@@ -9,9 +9,12 @@ using System.Linq;
 
 namespace DexBot.Modules
 {
-	[Group("levelset"), Alias("levelup", "lvlup", "lvl", "levelmoves", "levelmv", "lvlmv"), Name("Learnset")]
-	public class LearnsetModule : ModuleBase<SocketCommandContext>
+	[Group("levelset"), Alias("lvlset", "levelup", "lvlup", "lvl", "levelmoves", "levelmv", "lvlmv"), Name(Source)]
+	public class LearnsetModule : ModuleBase<SocketCommandContext>, IModuleWithHelp
 	{
+		private const string Source = "Levelset";
+		public string ModuleName => Source;
+
 		public static readonly List<string> _gameNames = new List<string>()
 		{
 			"fire-red",
@@ -82,8 +85,17 @@ namespace DexBot.Modules
 		};
 		private static readonly Regex _gamesRegex = new Regex($@"(-|^|(?<=\W))(?<game>{string.Join('|', _gameNames)})(-|$|(?=\W))");
 
-		[Command, Name("Levelset")]
-		public async Task LearnsetCommand([Remainder] string input)
+		[Command("help"), Alias("?"), Name(Source + " Help"), Priority(1)]
+		public async Task HelpCommand()
+		{
+			string description = "Gets the specified pokémon's levelup moveset in the specified game";
+			string usage = "<pokemon> <game>";
+
+			await Context.Channel.SendMessageAsync("", false, Util.CreateHelpEmbed(description, usage, this).Build());
+		}
+
+		[Command]
+		public async Task LevelsetCommand([Remainder] string input)
 		{
 			IUserMessage message = await Util.SendSearchMessageAsync(Context.Channel);
 			Embed embed;
@@ -131,7 +143,6 @@ namespace DexBot.Modules
 
 			await Util.ReplaceEmbedAsync(message, embed);
 		}
-
 
 		private static Embed LevelSetData(FullPokemon pokemon, string gameId)
 		{

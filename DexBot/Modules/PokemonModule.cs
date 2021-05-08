@@ -9,10 +9,24 @@ using System.Threading.Tasks;
 
 namespace DexBot.Modules
 {
-	[Group("pokemon"), Alias("poke", "mon", "p"), Name("Pokemon")]
-	public class PokemonModule : ModuleBase<SocketCommandContext>, IParsableModule
+	[Group("pokemon"), Alias("poke", "mon", "p"), Name(Source)]
+	public class PokemonModule : ModuleBase<SocketCommandContext>, IModuleWithHelp, IParsableModule
 	{
 		private const string Source = "Pokemon";
+		public string ModuleName => Source;
+
+		[Command("help"), Alias("?"), Name(Source + " Help"), Priority(1)]
+		public async Task HelpCommand()
+		{
+			string description = "Gets data about the specified pokémon. If no form is specified, default will be assumed. " +
+										"All forms of any pokémon which has at least one form with different stats or abilities are supported.";
+			string usage = "<pokémon>";
+
+			EmbedBuilder embed = Util.CreateHelpEmbed(description, usage, this)
+				.AddField(new EmbedFieldBuilder().WithName("Subcommand").WithValue("`random`"));
+
+			await Context.Channel.SendMessageAsync("", false, embed.Build());
+		}
 
 		// If you add a form alias to this list, you must add the PokeAPI name of the form to the switch in GetFormString() if you want it to work! -Jolkert 2021-04-27
 		private static readonly List<string> _formStrings = new List<string>()
@@ -195,7 +209,7 @@ namespace DexBot.Modules
 		private static readonly Regex _allFormsRegex = new Regex($@"(-|^|(?<=\W))(?<form>{string.Join('|', _formStrings)})(-|$|(?=\W))");
 		private const int NationalDexCount = 898;
 
-		[Command, Name("Pokemon")]
+		[Command, Name(Source)]
 		public async Task PokemonCommand([Remainder] string input)
 		{
 			IUserMessage message = await Util.SendSearchMessageAsync(Context.Channel);
@@ -210,96 +224,6 @@ namespace DexBot.Modules
 				embed = PokemonData(pokemon);
 
 			await Util.ReplaceEmbedAsync(message, embed);
-		}
-
-		[Command("random"), Alias("rand", "roll", "rng"), Name("RandomPoke"), Priority(1)]
-		public Task RandomPokemonCommand([Remainder] string parse = "")
-		{
-			parse = parse.ToLowerInvariant();
-			Regex numberRegex = new Regex(@"(\b\d\b)");
-			MatchCollection matches = numberRegex.Matches(parse);
-
-			int pokemonToGenerate;
-			if (matches.Count > 0)
-				pokemonToGenerate = int.Parse(matches[0].Value);
-			else
-				pokemonToGenerate = 1;
-
-			if (pokemonToGenerate > 6)
-				pokemonToGenerate = 6;
-
-
-			Regex genRegex = new Regex(@"gen(?<gen>\d+)");
-			int gen = -1;
-			if (parse.Contains("gen"))
-			{
-				MatchCollection genMatches = genRegex.Matches(parse);
-				if (genMatches.Count > 0 && genMatches[0].Groups.TryGetValue("gen", out Group value))
-					gen = int.Parse(value.Value);
-			}
-
-			int lowerBound;
-			int upperBound;
-			switch (gen)
-			{
-				case 1:
-					lowerBound = 1;
-					upperBound = 151;
-					break;
-				case 2:
-					lowerBound = 152;
-					upperBound = 251;
-					break;
-				case 3:
-					lowerBound = 252;
-					upperBound = 386;
-					break;
-				case 4:
-					lowerBound = 387;
-					upperBound = 493;
-					break;
-				case 5:
-					lowerBound = 494;
-					upperBound = 649;
-					break;
-				case 6:
-					lowerBound = 650;
-					upperBound = 721;
-					break;
-				case 7:
-					lowerBound = 722;
-					upperBound = 809;
-					break;
-				case 8:
-					lowerBound = 810;
-					upperBound = 898;
-					break;
-
-				default:
-					lowerBound = 1;
-					upperBound = NationalDexCount;
-					break;
-			}
-
-
-			Random rand = new Random();
-			List<int> dexNumbers = new List<int>();
-			for (int i = 0; i < pokemonToGenerate; i++)
-			{
-				int toAdd = rand.Next(lowerBound, upperBound + 1);
-				if (!dexNumbers.Contains(toAdd))
-					dexNumbers.Add(toAdd);
-				else
-					i--;
-			}
-
-
-			/*List<Task> tasks = new List<Task>();
-			Parallel.ForEach(dexNumbers, dexNumber => tasks.Add(PokemonCommand($"{dexNumber}")));
-			await Task.WhenAll(tasks);*/
-
-			Parallel.ForEach(dexNumbers, async dexNumber => await PokemonCommand($"{dexNumber}"));
-			return Task.CompletedTask;
 		}
 
 		public static async Task<FullPokemon> ParsePokemonAsync(string parse)
@@ -673,11 +597,111 @@ namespace DexBot.Modules
 			return list;
 		}
 
-
-
 		// IParsableModule implementations
 		public async Task<NamedApiObject> ParseAsync(string parse) => await ParsePokemonAsync(parse);
 		public Embed GetData(NamedApiObject apiObject) => PokemonData(apiObject as FullPokemon);
+
+		[Group("random"), Alias("rand", "roll", "rng"), Name(Source)]
+		public class RandomPokemonModule : PokemonModule, IModuleWithHelp
+		{
+			public new const string Source = "Random Pokemon";
+			public new string ModuleName => Source;
+
+			[Command("help"), Alias("?"), Name(Source + " Help"), Priority(2)]
+			public new async Task HelpCommand()
+			{
+				string description = "Gets the same information from the main command about a random pokémon. 1 to 6 pokémon can be generated, " +
+										"and/or a generation can be specified *(1 pokémon and all generations is default)*";
+				string usage = "[number]|[gen#]";
+
+				await Context.Channel.SendMessageAsync("", false, Util.CreateHelpEmbed(description, usage, this).Build());
+			}
+
+			[Command, Name(Source), Priority(1)]
+			public Task RandomPokemonCommand([Remainder] string parse = "")
+			{
+				parse = parse.ToLowerInvariant();
+				Regex numberRegex = new Regex(@"(\b\d\b)");
+				MatchCollection matches = numberRegex.Matches(parse);
+
+				int pokemonToGenerate;
+				if (matches.Count > 0)
+					pokemonToGenerate = int.Parse(matches[0].Value);
+				else
+					pokemonToGenerate = 1;
+
+				if (pokemonToGenerate > 6)
+					pokemonToGenerate = 6;
+
+
+				Regex genRegex = new Regex(@"gen(?<gen>\d+)");
+				int gen = -1;
+				if (parse.Contains("gen"))
+				{
+					MatchCollection genMatches = genRegex.Matches(parse);
+					if (genMatches.Count > 0 && genMatches[0].Groups.TryGetValue("gen", out Group value))
+						gen = int.Parse(value.Value);
+				}
+
+				int lowerBound;
+				int upperBound;
+				switch (gen)
+				{
+					case 1:
+						lowerBound = 1;
+						upperBound = 151;
+						break;
+					case 2:
+						lowerBound = 152;
+						upperBound = 251;
+						break;
+					case 3:
+						lowerBound = 252;
+						upperBound = 386;
+						break;
+					case 4:
+						lowerBound = 387;
+						upperBound = 493;
+						break;
+					case 5:
+						lowerBound = 494;
+						upperBound = 649;
+						break;
+					case 6:
+						lowerBound = 650;
+						upperBound = 721;
+						break;
+					case 7:
+						lowerBound = 722;
+						upperBound = 809;
+						break;
+					case 8:
+						lowerBound = 810;
+						upperBound = 898;
+						break;
+
+					default:
+						lowerBound = 1;
+						upperBound = NationalDexCount;
+						break;
+				}
+
+
+				Random rand = new Random();
+				List<int> dexNumbers = new List<int>();
+				for (int i = 0; i < pokemonToGenerate; i++)
+				{
+					int toAdd = rand.Next(lowerBound, upperBound + 1);
+					if (!dexNumbers.Contains(toAdd))
+						dexNumbers.Add(toAdd);
+					else
+						i--;
+				}
+
+				Parallel.ForEach(dexNumbers, async dexNumber => await PokemonCommand($"{dexNumber}"));
+				return Task.CompletedTask;
+			}
+		}
 	}
 
 

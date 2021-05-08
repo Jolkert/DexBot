@@ -14,6 +14,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Util.cs~RFb2b8bf.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Discord.Net" Version="2.3.1" />
     <PackageReference Include="Discord.Net.Commands" Version="2.3.1" />
     <PackageReference Include="Discord.Net.Core" Version="2.3.1" />

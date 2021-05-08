@@ -5,13 +5,15 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
+using System.IO;
+using System.Text;
 
 namespace DexBot
 {
 	class Program
 	{
 		public static DiscordSocketClient Client;
-		private static readonly string _version = "1.0.1";
+		private static readonly string _version = "1.0.2";
 
 		static void Main(string[] args) => new Program().StartAsync().GetAwaiter().GetResult();
 
@@ -19,32 +21,57 @@ namespace DexBot
 		{
 			using (var services = ConfigureServices())
 			{
-				if (Config.bot.token == null)
-					return;
+				if (Config.Bot.Token == null || Config.Bot.Token == "BOT_TOKEN_GOES_HERE")
+				{
+					await LogAsync("Bot token not found. Make sure you have your bot token set in Resources/config.json", "Startup");
+					Stop();
+				}
+				if (Config.Bot.CommandPrefix == null || Config.Bot.CommandPrefix == "")
+				{
+					await LogAsync("Command prefix not found. Make sure you have your command prefix set in Resources/config.json", "Startup");
+					Stop();
+				}
 
-				await LogAsync($"Starting DexBot v{_version}", "DexBot");
+				await LogAsync($"Starting DexBot v{_version}", "Startup");
 				Client = services.GetRequiredService<DiscordSocketClient>();
 				Client.Log += LogAsync;
+				Client.Ready += OnReadyAsync;
+				Client.JoinedGuild += async (SocketGuild guild) =>  await LogAsync($"Joined {guild.Name} ({guild.Id})", "ServerJoin");
 
 				services.GetRequiredService<CommandService>().Log += LogAsync;
-				await Client.LoginAsync(TokenType.Bot, Config.bot.token);
+				await Client.LoginAsync(TokenType.Bot, Config.Bot.Token);
 				await Client.StartAsync();
 				await services.GetRequiredService<CommandHandler>().InitializeAsync();
-				await Client.SetGameAsync($"{Config.bot.cmdPrefix}help", null, ActivityType.Listening);
 
 				await Task.Delay(-1);
 			}
 		}
 
-		private static Task LogAsync(LogMessage log)
+		private async Task OnReadyAsync()
 		{
-			Console.WriteLine($"[{log.Severity}] {log.ToString()}");
-			return Task.CompletedTask;
+			await Client.SetGameAsync($"{Config.Bot.CommandPrefix}help", null, ActivityType.Listening);
+			foreach (SocketGuild guild in Client.Guilds)
+				await LogAsync($"Connected to {guild.Name} ({guild.Id})", "Startup");
+
+			await LogAsync($"Bot is active in {Client.Guilds.Count} servers!", "Startup");
+		}
+
+		private static async Task LogAsync(LogMessage log)
+		{
+			string write = $"[{log.Severity}] {log.ToString()}";
+			Console.WriteLine(write);
+			await Logger.LogToFileAsync(write);
 		}
 
 		public static Task LogAsync(string message, string source)
 		{
 			return LogAsync(new LogMessage(LogSeverity.Info, source, message));
+		}
+
+		public static void Stop()
+		{
+			Logger.Close();
+			Environment.Exit(Environment.ExitCode);
 		}
 
 		private ServiceProvider ConfigureServices()

@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Discord.Commands;
+using System.Linq;
 
 namespace DexBot
 {
@@ -203,6 +205,24 @@ namespace DexBot
 		public static async Task ReplaceEmbedAsync(IUserMessage message, Embed embed)
 		{
 			await message.ModifyAsync(m => m.Embed = embed);
+		}
+		public static EmbedBuilder CreateHelpEmbed(string description, string usage, IModuleWithHelp module)
+		{
+			ModuleInfo foundModule = Services.CommandHandler.Commands.Modules.Where(mod => mod.Name == module.ModuleName).FirstOrDefault();
+			string mainAlias = foundModule?.Aliases.FirstOrDefault();
+			IEnumerable<string> aliases = foundModule?.Aliases.Select(str => str.Split(' ').Last()).Distinct();
+
+
+			return new EmbedBuilder()
+				.WithTitle($"{module.ModuleName} Help")
+				.WithDescription(description)
+				.WithFields(new EmbedFieldBuilder[]
+				{
+					new EmbedFieldBuilder().WithName("Usage").WithValue($"`{Config.Bot.CommandPrefix}{mainAlias} {usage}`").WithIsInline(false),
+					new EmbedFieldBuilder().WithName("Aliases").WithValue(string.Join(", ", aliases.Select(str => $"`{str}`"))).WithIsInline(false),
+				})
+				.WithColor(DexColor)
+				.WithFooter(new EmbedFooterBuilder().WithText($"Need more help? Run {Config.Bot.CommandPrefix}help"));
 		}
 
 		public static Color AverageColor(params Color[] colors)
