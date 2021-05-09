@@ -1,11 +1,10 @@
 ﻿using Discord;
 using Discord.Commands;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
 using PokeAPI;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace DexBot.Modules
 {
@@ -207,7 +206,7 @@ namespace DexBot.Modules
 				case "pearl":
 				case "dp":
 					return "diamond-pearl";
-				
+
 				case "platinum":
 				case "plat":
 					return "platinum";

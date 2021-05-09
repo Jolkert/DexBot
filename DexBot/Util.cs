@@ -1,12 +1,12 @@
 ﻿using DexBot.Modules;
 using Discord;
+using Discord.Commands;
 using PokeAPI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Discord.Commands;
-using System.Linq;
 
 namespace DexBot
 {

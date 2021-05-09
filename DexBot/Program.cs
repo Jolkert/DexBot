@@ -5,8 +5,6 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
-using System.IO;
-using System.Text;
 
 namespace DexBot
 {
@@ -36,7 +34,7 @@ namespace DexBot
 				Client = services.GetRequiredService<DiscordSocketClient>();
 				Client.Log += LogAsync;
 				Client.Ready += OnReadyAsync;
-				Client.JoinedGuild += async (SocketGuild guild) =>  await LogAsync($"Joined {guild.Name} ({guild.Id})", "ServerJoin");
+				Client.JoinedGuild += async (SocketGuild guild) => await LogAsync($"Joined {guild.Name} ({guild.Id})", "ServerJoin");
 
 				services.GetRequiredService<CommandService>().Log += LogAsync;
 				await Client.LoginAsync(TokenType.Bot, Config.Bot.Token);

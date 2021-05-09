@@ -20,7 +20,7 @@ namespace DexBot.Modules
 
 		private const string Source = "Data";
 		public string ModuleName => Source;
-		
+
 		[Command("help"), Alias("?"), Name(Source + " Help"), Priority(1)]
 		public async Task HelpCommand()
 		{

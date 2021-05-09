@@ -193,7 +193,7 @@ namespace DexBot.Modules
 	{
 		private const string Source = "Weakness";
 		public string ModuleName => Source;
-		
+
 		private static readonly string[] _typeNames = new string[]
 			{
 				"normal",
@@ -386,7 +386,7 @@ namespace DexBot.Modules
 			return string.Join('/', immunities);
 		}
 
-		
+
 
 		public struct MultiTypeRelations
 		{

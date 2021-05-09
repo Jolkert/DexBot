@@ -372,7 +372,7 @@ namespace DexBot.Modules
 					if (species != null)
 					{
 						List<string> foundForms = new List<string>();
-						foreach(Match match in matches)
+						foreach (Match match in matches)
 						{
 							if (match.Groups.TryGetValue("form", out Group group))
 							{

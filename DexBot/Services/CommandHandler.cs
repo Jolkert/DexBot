@@ -77,7 +77,7 @@ namespace DexBot.Services
 				return;
 			}
 
-			if (context.Guild != null)	
+			if (context.Guild != null)
 				await Program.LogAsync($"Something has gone terribly wrong! [{context.User.Username}#{context.User.Discriminator}] in [{context.Guild.Name}/#{context.Channel.Name}] / [{result}]", Source);
 			else
 				await Program.LogAsync($"Something has gone terribly wrong! [{context.User.Username}#{context.User.Discriminator}] in [{context.Channel.Name}] / [{result}]", Source);
