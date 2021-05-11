@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace DexBot.Modules
 {
 	[Group("levelset"), Alias("lvlset", "levelup", "lvlup", "lvl", "levelmoves", "levelmv", "lvlmv"), Name(Source)]
-	public class LearnsetModule : ModuleBase<SocketCommandContext>, IModuleWithHelp
+	public class LevelsetModule : ModuleBase<SocketCommandContext>, IModuleWithHelp
 	{
 		private const string Source = "Levelset";
 		public string ModuleName => Source;
@@ -119,7 +119,7 @@ namespace DexBot.Modules
 							.Build();
 					}
 					else
-						embed = LevelSetData(pokemon, gameId);
+						embed = LevelsetData(pokemon, gameId);
 				}
 				else
 				{
@@ -143,9 +143,9 @@ namespace DexBot.Modules
 			await Util.ReplaceEmbedAsync(message, embed);
 		}
 
-		private static Embed LevelSetData(FullPokemon pokemon, string gameId)
+		private static Embed LevelsetData(FullPokemon pokemon, string gameId)
 		{
-			List<(int, string)> levelset = GetLevelSet(pokemon.Pokemon, gameId);
+			List<(int, string)> levelset = GetLevelset(pokemon.Pokemon, gameId);
 			levelset.Sort();
 
 			string levelsetString = "```\n" +
@@ -165,7 +165,7 @@ namespace DexBot.Modules
 				.WithFooter(Util.PokeApiFooter)
 				.Build();
 		}
-		private static List<(int, string)> GetLevelSet(Pokemon pokemon, string gameId)
+		private static List<(int, string)> GetLevelset(Pokemon pokemon, string gameId)
 		{
 			return (from PokemonMove move in pokemon.Moves
 					from MoveVersionGroupDetails details in move.VersionGroupDetails
