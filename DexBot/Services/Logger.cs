@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DexBot
@@ -9,13 +11,25 @@ namespace DexBot
 	{// This thing is probably not very good, but I'm gonna use it anyway because I am stubborn and don't want to use another package -Jolkert 2021-05-06
 		private static string _logFile;
 		private static FileStream _stream;
+		private static readonly Queue<string> _writeQueue;
 
-		static Logger() => StartStream();
-
-
-		public static async Task LogToFileAsync(string log)
+		static Logger()
 		{
-			await _stream.WriteAsync(Encoding.UTF8.GetBytes($"{log}\n"));
+			_writeQueue = new Queue<string>();
+			StartStream();
+			new Thread(new ThreadStart(async () =>
+			{
+				while (true)
+					while (_writeQueue.Count > 0)
+						await LogToFileFromQueueAsync();
+			})).Start();
+		}
+
+
+		public static void LogToFile(string log) => _writeQueue.Enqueue(log);
+		private static async Task LogToFileFromQueueAsync()
+		{
+			await _stream.WriteAsync(Encoding.UTF8.GetBytes($"{_writeQueue.Dequeue()}\n"));
 			RestartStream();
 		}
 

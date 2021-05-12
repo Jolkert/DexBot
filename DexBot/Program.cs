@@ -11,7 +11,7 @@ namespace DexBot
 	class Program
 	{
 		public static DiscordSocketClient Client;
-		private static readonly string _version = "1.1";
+		private static readonly string _version = "1.1.1";
 
 		static void Main(string[] args) => new Program().StartAsync().GetAwaiter().GetResult();
 
@@ -54,11 +54,12 @@ namespace DexBot
 			await LogAsync($"Bot is active in {Client.Guilds.Count} servers!", "Startup");
 		}
 
-		private static async Task LogAsync(LogMessage log)
+		private static Task LogAsync(LogMessage log)
 		{
 			string write = $"[{log.Severity}] {log.ToString()}";
 			Console.WriteLine(write);
-			await Logger.LogToFileAsync(write);
+			Logger.LogToFile(write);
+			return Task.CompletedTask;
 		}
 
 		public static Task LogAsync(string message, string source)

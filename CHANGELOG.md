@@ -1,4 +1,8 @@
 # DexBot Changelog
+## v1.1.1
+### Logging
+* Rewrote the Logger to use a queue system to avoid throwing errors when trying to write multiple lines at once to the file. The solution's kinda weird but it works now and that's what matters.
+
 ## v1.1
 ### Commands
 * Added `AdminModule`
