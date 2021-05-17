@@ -11,7 +11,7 @@ namespace DexBot
 	class Program
 	{
 		public static DiscordSocketClient Client;
-		private static readonly string _version = "1.1.1";
+		private static readonly string _version = "1.1.2";
 
 		static void Main(string[] args) => new Program().StartAsync().GetAwaiter().GetResult();
 

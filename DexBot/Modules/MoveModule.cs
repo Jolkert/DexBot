@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using PokeAPI;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -12,6 +13,14 @@ namespace DexBot.Modules
 	{
 		private const string Source = "Move";
 		public string ModuleName => Source;
+
+		private static readonly Dictionary<string, ulong> _categoryEmoteIds = new Dictionary<string, ulong>()
+		{
+			{ "physical", 843926198123626506 },
+			{ "special", 843926198060449812 },
+			{ "status", 843926198052061184 }
+		};
+
 
 		[Command("help"), Alias("?"), Name(Source + " Help"), Priority(1)]
 		public async Task HelpCommand()
@@ -63,8 +72,8 @@ namespace DexBot.Modules
 				.WithColor(Util.GetColor(move.Type.Name))
 				.WithFields(new EmbedFieldBuilder[]
 				{
-					new EmbedFieldBuilder().WithName("Type").WithValue(Util.FixName(move.Type.Name)).WithIsInline(true),
-					new EmbedFieldBuilder().WithName("Category").WithValue(damageClass).WithIsInline(true),
+					new EmbedFieldBuilder().WithName("Type").WithValue($"{TypeModule.GetTypeEmote(move.Type.Name)} {Util.FixName(move.Type.Name)}").WithIsInline(true),
+					new EmbedFieldBuilder().WithName("Category").WithValue($"{GetCategoryEmote(move.DamageClass.Name)} {damageClass}").WithIsInline(true),
 					new EmbedFieldBuilder().WithName("PP").WithValue($"{pp} (max: {pp * 1.6})").WithIsInline(true),
 					new EmbedFieldBuilder().WithName("Base Power").WithValue(basePower == null ? "——" : $"{basePower}").WithIsInline(true),
 					new EmbedFieldBuilder().WithName("Accuracy").WithValue(accuracy == null ? "——" : $"{accuracy}").WithIsInline(true)
@@ -105,7 +114,6 @@ namespace DexBot.Modules
 					return input;
 			}
 		}
-
 		private static string GetMoveEffect(Move move, bool getShortEffect = false)
 		{
 			foreach (var effect in move.Effects)
@@ -118,6 +126,10 @@ namespace DexBot.Modules
 			throw new NoEnglishNameException(move);
 		}
 
+		public static Emote GetCategoryEmote(string id)
+		{
+			return Emote.Parse($"<:category_{id}:{_categoryEmoteIds[id]}>");
+		}
 
 
 		// IParsableModule implementations
