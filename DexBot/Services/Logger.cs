@@ -9,6 +9,7 @@ namespace DexBot
 {
 	public static class Logger
 	{// This thing is probably not very good, but I'm gonna use it anyway because I am stubborn and don't want to use another package -Jolkert 2021-05-06
+	 // TODO: Make this thing work better or replace it with a real logging library -Jolkert 2021-05-19
 		private static string _logFile;
 		private static FileStream _stream;
 		private static readonly Queue<string> _writeQueue;
@@ -24,18 +25,7 @@ namespace DexBot
 		public static void LogToFile(string log)
 		{
 			_writeQueue.Enqueue(log);
-
-			if (_writeThread == null || _writeThread.ThreadState == ThreadState.Stopped)
-			{
-				_writeThread = new Thread(new ThreadStart(async () =>
-				{
-					while (_writeQueue.Count > 0)
-						await LogToFileFromQueueAsync();
-				}));
-				_writeThread.Start();
-			}
-
-
+			LogToFileFromQueueAsync().RunSynchronously();
 		}
 		private static async Task LogToFileFromQueueAsync()
 		{
