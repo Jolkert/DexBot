@@ -13,7 +13,6 @@ namespace DexBot
 		private static string _logFile;
 		private static FileStream _stream;
 		private static readonly Queue<string> _writeQueue;
-		private static Thread _writeThread;
 
 		static Logger()
 		{
@@ -25,7 +24,7 @@ namespace DexBot
 		public static void LogToFile(string log)
 		{
 			_writeQueue.Enqueue(log);
-			LogToFileFromQueueAsync().RunSynchronously();
+			LogToFileFromQueueAsync();
 		}
 		private static async Task LogToFileFromQueueAsync()
 		{
