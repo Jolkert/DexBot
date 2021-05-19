@@ -1,4 +1,9 @@
 # DexBot Changelog
+## v1.1.3
+## Logging
+* Added config option `OutputLogsToFile` to allow file logs to be disabled (defaults to `true`)
+* Logger is now more efficient and won't consume CPU with a stupid `while (true)` loop. *Why did I ever think that was a good idea???*
+
 ## v1.1.2
 ### Commands
 * `move` command now displays a type icon next to the type and a category icon next to the move category

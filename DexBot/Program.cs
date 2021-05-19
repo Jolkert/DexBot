@@ -11,7 +11,7 @@ namespace DexBot
 	class Program
 	{
 		public static DiscordSocketClient Client;
-		private static readonly string _version = "1.1.2";
+		private static readonly string _version = "1.1.3";
 
 		static void Main(string[] args) => new Program().StartAsync().GetAwaiter().GetResult();
 
@@ -58,7 +58,8 @@ namespace DexBot
 		{
 			string write = $"[{log.Severity}] {log.ToString()}";
 			Console.WriteLine(write);
-			Logger.LogToFile(write);
+			if (Config.Bot.OutputLogsToFile)
+				Logger.LogToFile(write);
 			return Task.CompletedTask;
 		}
 
@@ -69,7 +70,8 @@ namespace DexBot
 
 		public static void Stop()
 		{
-			Logger.Close();
+			if (Config.Bot.OutputLogsToFile)
+				Logger.Close();
 			Environment.Exit(Environment.ExitCode);
 		}
 

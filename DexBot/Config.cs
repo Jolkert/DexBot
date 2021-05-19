@@ -16,7 +16,7 @@ namespace DexBot
 				Directory.CreateDirectory(ResourcesFile);
 			if (!File.Exists(ResourcesFile + "/" + ConfigFile))
 			{
-				Bot = new BotConfig("BOT_TOKEN_GOES_HERE", "d!");
+				Bot = new BotConfig("BOT_TOKEN_GOES_HERE", "d!", true);
 				string json = JsonConvert.SerializeObject(Bot, Formatting.Indented);
 				File.WriteAllText(ResourcesFile + "/" + ConfigFile, json);
 			}
@@ -40,11 +40,13 @@ namespace DexBot
 	{
 		public string Token;
 		public string CommandPrefix;
+		public bool OutputLogsToFile;
 
-		public BotConfig(string token, string prefix)
+		public BotConfig(string token, string prefix, bool outputLogsToFile)
 		{
 			this.Token = token;
 			this.CommandPrefix = prefix;
+			this.OutputLogsToFile = outputLogsToFile;
 		}
 	}
 }

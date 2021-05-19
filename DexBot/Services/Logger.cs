@@ -12,25 +12,36 @@ namespace DexBot
 		private static string _logFile;
 		private static FileStream _stream;
 		private static readonly Queue<string> _writeQueue;
+		private static Thread _writeThread;
 
 		static Logger()
 		{
 			_writeQueue = new Queue<string>();
 			StartStream();
-			new Thread(new ThreadStart(async () =>
-			{
-				while (true)
-					while (_writeQueue.Count > 0)
-						await LogToFileFromQueueAsync();
-			})).Start();
 		}
 
 
-		public static void LogToFile(string log) => _writeQueue.Enqueue(log);
+		public static void LogToFile(string log)
+		{
+			_writeQueue.Enqueue(log);
+
+			if (_writeThread == null || _writeThread.ThreadState == ThreadState.Stopped)
+			{
+				_writeThread = new Thread(new ThreadStart(async () =>
+				{
+					while (_writeQueue.Count > 0)
+						await LogToFileFromQueueAsync();
+				}));
+				_writeThread.Start();
+			}
+
+
+		}
 		private static async Task LogToFileFromQueueAsync()
 		{
 			await _stream.WriteAsync(Encoding.UTF8.GetBytes($"{_writeQueue.Dequeue()}\n"));
-			RestartStream();
+			if (_writeQueue.Count == 0)
+				RestartStream();
 		}
 
 		public static void Close() => _stream.Close();
